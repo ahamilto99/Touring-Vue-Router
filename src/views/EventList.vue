@@ -12,6 +12,21 @@
         >&#60; Previous</router-link
       >
 
+      <div>
+        <router-link
+          v-for="pageNum in totalEvents / 2"
+          :events="events"
+          :key="pageNum"
+          :to="{ name: 'EventList', query: { page: pageNum } }"
+          :style="
+            pageNum == page
+              ? 'pointer-events: none; text-decoration-line: underline;'
+              : 'pointer-events: auto;'
+          "
+          >&#160;{{ pageNum }}&#160;</router-link
+        >
+      </div>
+
       <router-link
         id="page-next"
         :to="{ name: 'EventList', query: { page: page + 1 } }"
@@ -41,21 +56,20 @@ export default {
     }
   },
   created() {
-    watchEffect(() => {
-      this.events = null
-      EventService.getEvents(2, this.page)
-        .then(response => {
-          this.events = response.data
-          this.totalEvents = response.headers['x-total-count']
-        })
-        .catch(error => {
-          console.log(error)
-        })
+    watchEffect(async () => {
+      try {
+        this.events = null
+        const response = await EventService.getEvents(2, this.page)
+        this.events = response.data
+        this.totalEvents = response.headers['x-total-count']
+      } catch (e) {
+        console.log(e)
+      }
     })
   },
   computed: {
     hasNextPage() {
-      var totalPages = Math.ceil(this.totalEvents / 2)
+      const totalPages = Math.ceil(this.totalEvents / 2)
 
       return this.page < totalPages
     }
