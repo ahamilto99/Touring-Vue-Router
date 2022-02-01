@@ -43,6 +43,13 @@ const routes = [
         component: EventEdit
       }
     ]
+  },
+  {
+    path: '/event/:afterEvent(.*)',
+    // redirects edit and register from /event/#/... to /events/#/...
+    redirect: to => {
+      return { path: '/events/' + to.params.afterEvent }
+    }
   }
 ]
 
