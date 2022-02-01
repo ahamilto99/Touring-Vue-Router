@@ -63,7 +63,7 @@ export default {
         this.events = response.data
         this.totalEvents = response.headers['x-total-count']
       } catch (e) {
-        console.log(e)
+        this.$router.push({ name: 'NetworkError' })
       }
     })
   },
