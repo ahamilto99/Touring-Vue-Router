@@ -41,7 +41,6 @@
 <script>
 import EventCard from '@/components/EventCard.vue'
 import EventService from '@/services/EventService.js'
-import NProgress from 'nprogress'
 
 export default {
   name: 'EventList',
@@ -57,24 +56,21 @@ export default {
   },
   async beforeRouteEnter(routeTo, routeFrom, next) {
     try {
-      NProgress.start()
       const response = await EventService.getEvents(
         2,
         parseInt(routeTo.query.page) || 1
       )
-      next(comp => {
-        comp.events = response.data
-        comp.totalEvents = response.headers['x-total-count']
+      // next(...) tells Vue Router to wait until the API call returns b/4 routing
+      next(component => {
+        component.events = response.data
+        component.totalEvents = response.headers['x-total-count']
       })
     } catch (e) {
       next({ name: 'NetworkError' })
-    } finally {
-      NProgress.done()
     }
   },
   async beforeRouteUpdate(routeTo) {
     try {
-      NProgress.start()
       const response = await EventService.getEvents(
         2,
         parseInt(routeTo.query.page) || 1
@@ -83,8 +79,6 @@ export default {
       this.totalEvents = response.headers['x-total-count']
     } catch (e) {
       return { name: 'NetworkError' }
-    } finally {
-      NProgress.done()
     }
   },
   computed: {
