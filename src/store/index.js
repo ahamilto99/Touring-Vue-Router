@@ -1,8 +1,4 @@
-import { createStore } from 'vuex'
+import { reactive } from 'vue'
 
-export default createStore({
-  state: {},
-  mutations: {},
-  actions: {},
-  modules: {}
-})
+// reactive global store object
+export default reactive({ flashMessage: '', event: null })

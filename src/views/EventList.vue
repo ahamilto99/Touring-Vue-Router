@@ -41,7 +41,6 @@
 <script>
 import EventCard from '@/components/EventCard.vue'
 import EventService from '@/services/EventService.js'
-import { watchEffect } from 'vue'
 
 export default {
   name: 'EventList',
@@ -55,17 +54,32 @@ export default {
       totalEvents: 0
     }
   },
-  created() {
-    watchEffect(async () => {
-      try {
-        this.events = null
-        const response = await EventService.getEvents(2, this.page)
-        this.events = response.data
-        this.totalEvents = response.headers['x-total-count']
-      } catch (e) {
-        console.log(e)
-      }
-    })
+  async beforeRouteEnter(routeTo, routeFrom, next) {
+    try {
+      const response = await EventService.getEvents(
+        2,
+        parseInt(routeTo.query.page) || 1
+      )
+      // next(...) tells Vue Router to wait until the API call returns b/4 routing
+      next(component => {
+        component.events = response.data
+        component.totalEvents = response.headers['x-total-count']
+      })
+    } catch (e) {
+      next({ name: 'NetworkError' })
+    }
+  },
+  async beforeRouteUpdate(routeTo) {
+    try {
+      const response = await EventService.getEvents(
+        2,
+        parseInt(routeTo.query.page) || 1
+      )
+      this.events = response.data
+      this.totalEvents = response.headers['x-total-count']
+    } catch (e) {
+      return { name: 'NetworkError' }
+    }
   },
   computed: {
     hasNextPage() {
